@@ -8,8 +8,8 @@ It defined four touch pads and shows the no-touch calibrated value for each, and
 
 It uses uasyncio in a naive way.  Here's initialising the LCD:
 
-`i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000) 
-lcd = LCD2004(i2c, addr=39)`
+`i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000)` 
+`lcd = LCD2004(i2c, addr=39)`
 
 and here's writing some text of values to the LCD:
 
