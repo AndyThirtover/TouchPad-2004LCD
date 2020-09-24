@@ -21,7 +21,7 @@ class TouchUI():
 		self.state = False
 		print("TouchUI {}, Calibrate: {}  Trigger: {} Start: {}".format(self.line_number, self.no_touch, self.trigger, self.start_pixel))
 
-	def display(self, show_state):
+	async def display(self, show_state):
 		print("Display: {}".format(True))
 		for i in range(12):
 			if show_state:
@@ -41,12 +41,18 @@ class TouchUI():
 			if current < self.trigger:
 				if self.state == False:
 					self.state = True
-					self.display(True)
+					for i in range(12):
+						self.np[self.start_pixel+i] = RED
+						self.np.write()
+						await uasyncio.sleep_ms(segment_wait)
 					self.action("Called from: {}".format(self.line_number))
 			else:
 				if self.state == True:
 					self.state = False
-					self.display(False)
+					for i in range(12):
+						self.np[self.start_pixel+i] = GREEN
+						self.np.write()
+						await uasyncio.sleep_ms(segment_wait)
 			self.last_state = self.state
 			await uasyncio.sleep_ms(10)
 
