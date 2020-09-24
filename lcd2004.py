@@ -1,17 +1,15 @@
 '''
     Modifed mpy drive for I2C LCD1602 - Now LCD2004
 
-    Author: shaoziyang
+    Original Author: shaoziyang
     Date:   2018.2
-
+    Modified 2020.9    - cleaned up char and puts
     https://www.micropython.org.cn
 
 '''
 from utime import sleep_ms
 from machine import I2C
 import uasyncio
-
-LCD_I2C_ADDR=const(63)
 
 class LCD2004():
     def __init__(self, i2c, addr = 0):
@@ -28,13 +26,14 @@ class LCD2004():
         for i in [0x28, 0x0C, 0x06, 0x01]:
             self.setcmd(i)
         self.px, self.py = 0, 0
-        self.pb = bytearray(' '*16)
+        self.line_length = 20
+        self.pb = bytearray(' '*self.line_length)
         self.version='2.0'
 
     def setReg(self, dat):
         self.buf[0] = dat
         self.i2c.writeto(self.ADDR, self.buf)
-        #sleep_ms(1) #is this sleep even required ?
+        sleep_ms(1) #is this sleep even required ?
 
     def send(self, dat):
         d=(dat&0xF0)|self.BK|self.RS
@@ -83,25 +82,16 @@ class LCD2004():
     def shr(self):
         self.setcmd(0x1C)
 
-    def char(self, ch, x=-1, y=0):
-        if x>=0:
-            a=0x80
-            if y==1:
-                a=0xC0
-            if y==2:
-                a=0x94
-            if y==3:
-                a=0xD4
-            self.setcmd(a+x)
+    def char(self, ch, x, y):
+        self.setcmd([0x80,0xC0,0x94,0xD4][y]+x)
         self.setdat(ch)
 
     def puts(self, s, x=0, y=0):
         if type(s) is not str:
             s = str(s)
         if len(s)>0:
-            self.char(ord(s[0]),x,y)
-            for i in range(1, len(s)):
-                self.char(ord(s[i]))
+            for i in range(0, len(s)):
+                self.char(ord(s[i]),x+i,y)
 
     def newline(self):
         self.px = 0
@@ -125,5 +115,5 @@ class LCD2004():
                 if self.py:
                     self.pb[self.px] = d
                 self.px += 1
-                if self.px > 15:
+                if self.px > (self.line_length-1):
                     self.newline()
