@@ -4,6 +4,9 @@ from lcd2004 import LCD2004
 import uasyncio
 from micropython import const
 from classes import TouchUI
+import utime
+from urandom import randint
+
 
 neo_pin = 23
 touch_pins = [14,27,33,32]
@@ -25,21 +28,37 @@ def do_calibrate(t_channel,np):
 	for i in range(cycles):
 		cul += t_channel.read()
 		if i < LEDS:
-			np[i] = BLUE
+			np[i] = (randint(0,255),randint(0,255),randint(0,255))
 			np.write()
-			uasyncio.sleep_ms(50)
-	uasyncio.sleep_ms(800)  # just so we can see all the LEDs lit up
+			utime.sleep_ms(10)
+	utime.sleep_ms(800)  # just so we can see all the LEDs lit up
 	return int(cul/cycles)
+
+
+def title():
+	utime.sleep_ms(2000)
+	lcd.clear()
+	lcd.puts(" Thirtover Basement",0,0)
+
 
 def do_print(message):
 	print(message)
 
+
+
+event_loop = uasyncio.get_event_loop()
+
 for i in range(4):
 	tp = TouchPad(Pin(touch_pins[i]))
 	notouch = do_calibrate(tp,np)
-	lcd.puts(notouch,0,i)
+	lcd.puts("Pad Calibration {}".format(notouch),0,i)
 	tu = TouchUI(tp, i, notouch, np, rings[i], lcd, do_print)
-	uasyncio.run(tu.run())
+	uasyncio.create_task(tu.run())
+
+title()
+
+
+event_loop.run_forever()
 
 
 

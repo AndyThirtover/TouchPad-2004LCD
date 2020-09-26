@@ -21,7 +21,10 @@ class TouchUI():
 		self.state = False
 		print("TouchUI {}, Calibrate: {}  Trigger: {} Start: {}".format(self.line_number, self.no_touch, self.trigger, self.start_pixel))
 
-	async def display(self, show_state):
+	def trace(self,ind):
+		print("Trace from: {}".format(ind))
+
+	def do_np(self, show_state):
 		print("Display: {}".format(True))
 		for i in range(12):
 			if show_state:
@@ -32,12 +35,15 @@ class TouchUI():
 			await uasyncio.sleep_ms(segment_wait)
 
 
-
 	async def run(self):
-		# run forever
+		# Initial State
+		for i in range(12):
+			self.np[self.start_pixel+i] = GREEN
+		self.np.write()
+
 		while True:
 			current = self.touch_pad.read()
-			self.lcd.puts(current,4,self.line_number)  # hardware debug only
+			#self.lcd.puts(current,4,self.line_number)  # hardware debug only
 			if current < self.trigger:
 				if self.state == False:
 					self.state = True
