@@ -3,7 +3,7 @@ from neopixel import NeoPixel
 from lcd2004 import LCD2004
 import uasyncio
 from micropython import const
-from classes import TouchUI
+from classes import TouchUI, show_time, show_global_counter
 import utime
 from urandom import randint
 
@@ -56,6 +56,7 @@ for i in range(4):
 	uasyncio.create_task(tu.run())
 
 title()
+uasyncio.create_task(show_time(lcd,np))
 
 
 event_loop.run_forever()

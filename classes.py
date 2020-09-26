@@ -1,10 +1,21 @@
 # Classes for the TouchPad
 import uasyncio
+import time
+from machine import Timer
+from math import ceil
 
 RED = (128,0,0)
 GREEN = (0,32,0)
 BLUE = (0,0,32)
 segment_wait = const(30)
+trigger_margin = const(40)
+lcd_timeout = const(40)
+months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+global_counter = 0
+
+t0 = Timer(0)
+t0.init(period=1000, mode=Timer.PERIODIC, callback=lambda t:t_increment(1))
 
 
 class TouchUI():
@@ -12,7 +23,7 @@ class TouchUI():
 		self.touch_pad = touch_pad
 		self.line_number = line_number
 		self.no_touch = no_touch
-		self.trigger = no_touch - 30
+		self.trigger = no_touch - trigger_margin
 		self.np = np
 		self.start_pixel = start_pixel
 		self.lcd = lcd
@@ -36,6 +47,7 @@ class TouchUI():
 
 
 	async def run(self):
+		global global_counter
 		# Initial State
 		for i in range(12):
 			self.np[self.start_pixel+i] = GREEN
@@ -47,11 +59,14 @@ class TouchUI():
 			if current < self.trigger:
 				if self.state == False:
 					self.state = True
+					self.lcd.backlight(True)
+					global_counter = 0
 					for i in range(12):
 						self.np[self.start_pixel+i] = RED
 						self.np.write()
 						await uasyncio.sleep_ms(segment_wait)
-					self.action("Called from: {}".format(self.line_number))
+					self.lcd.puts("Last Event: {} {:02}:{:02}".format(self.line_number, time.localtime()[3], time.localtime()[4]),0,3)
+					self.action("Called from: {} at {}".format(self.line_number, current))
 			else:
 				if self.state == True:
 					self.state = False
@@ -64,3 +79,30 @@ class TouchUI():
 
 
 
+async def show_time(lcd,np):
+	global global_counter
+	while True:
+		t = time.localtime()
+		timestr = "{} {} {:02}:{:02}".format(t[2],months[t[1]-1],t[3],t[4])
+		lcd.puts(timestr,4,1)
+		if global_counter > lcd_timeout:
+			lcd.backlight(False)
+			dim_leds(np)
+		await uasyncio.sleep_ms(30000)
+
+
+def t_increment(val):
+	global global_counter
+	global_counter += val
+
+def show_global_counter():
+	global global_counter
+	return global_counter
+
+def dim_leds(np):
+	divsor = 1.2
+	for p in range(np.n):
+		cp = np[p]
+		newc = (ceil(cp[0]/divsor),ceil(cp[1]/divsor),ceil(cp[2]/divsor))
+		np[p] = newc
+	np.write()
