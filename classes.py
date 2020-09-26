@@ -28,7 +28,7 @@ class TouchUI():
 		self.start_pixel = start_pixel
 		self.lcd = lcd
 		self.action = action
-		self.last_state = None
+		self.circuit_state = None
 		self.state = False
 		print("TouchUI {}, Calibrate: {}  Trigger: {} Start: {}".format(self.line_number, self.no_touch, self.trigger, self.start_pixel))
 
@@ -45,6 +45,14 @@ class TouchUI():
 			self.np.write()
 			await uasyncio.sleep_ms(segment_wait)
 
+	def show_circuit(self):
+		return self.circuit_state
+
+	def toggle_circuit(self):
+		if self.circuit_state == None:
+			self.circuit_state = False
+		else:
+			self.circuit_state = not(self.circuit_state)
 
 	async def run(self):
 		global global_counter
@@ -66,6 +74,8 @@ class TouchUI():
 						self.np.write()
 						await uasyncio.sleep_ms(segment_wait)
 					self.lcd.puts("Last Event: {} {:02}:{:02}".format(self.line_number, time.localtime()[3], time.localtime()[4]),0,3)
+					self.toggle_circuit()
+					show_circuit(self,self.line_number,self.lcd)
 					self.action("Called from: {} at {}".format(self.line_number, current))
 			else:
 				if self.state == True:
@@ -74,7 +84,6 @@ class TouchUI():
 						self.np[self.start_pixel+i] = GREEN
 						self.np.write()
 						await uasyncio.sleep_ms(segment_wait)
-			self.last_state = self.state
 			await uasyncio.sleep_ms(10)
 
 
@@ -89,6 +98,13 @@ async def show_time(lcd,np):
 			lcd.backlight(False)
 			dim_leds(np)
 		await uasyncio.sleep_ms(30000)
+
+def show_circuit(tu,line_number,lcd):
+	if tu.show_circuit() == False:
+		msg = "Off"
+	else:
+		msg = "On "
+	lcd.puts(msg,line_number*5,2)
 
 
 def t_increment(val):

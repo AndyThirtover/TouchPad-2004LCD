@@ -14,6 +14,7 @@ calibrate = [0,0,0,0]
 LEDS = const(48)
 rings=[0,12,24,36]
 BLUE = (0,0,32)
+tu = [None,None,None,None]
 
 
 np = NeoPixel(Pin(neo_pin),LEDS)
@@ -52,8 +53,8 @@ for i in range(4):
 	tp = TouchPad(Pin(touch_pins[i]))
 	notouch = do_calibrate(tp,np)
 	lcd.puts("Pad Calibration {}".format(notouch),0,i)
-	tu = TouchUI(tp, i, notouch, np, rings[i], lcd, do_print)
-	uasyncio.create_task(tu.run())
+	tu[i] = TouchUI(tp, i, notouch, np, rings[i], lcd, do_print)
+	uasyncio.create_task(tu[i].run())
 
 title()
 uasyncio.create_task(show_time(lcd,np))

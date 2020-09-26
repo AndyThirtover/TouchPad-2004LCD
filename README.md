@@ -21,4 +21,6 @@ This is the simplified version of the Chinese LCD1602 library.   It has a reduce
 
 ## main.py + classes.py
 
-This is what I wanted to do in the first place.
+This is what I wanted to do in the first place.  It has better examples of how to use uasyncio with tasks and run_forever.
+
+Essentially, TouchPads become a class of TouchUI with all the plumbing for updating the NeoPixel rings, the LCD and associated circuit actions.
