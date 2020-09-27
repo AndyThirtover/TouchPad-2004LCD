@@ -30,6 +30,7 @@ class TouchUI():
 		self.action = action
 		self.circuit_state = None
 		self.state = False
+		self.av_array = [1000,1000,1000]
 		print("TouchUI {}, Calibrate: {}  Trigger: {} Start: {}".format(self.line_number, self.no_touch, self.trigger, self.start_pixel))
 
 	def trace(self,ind):
@@ -62,7 +63,12 @@ class TouchUI():
 		self.np.write()
 
 		while True:
-			current = self.touch_pad.read()
+			self.av_array.pop(0)
+			self.av_array.append(self.touch_pad.read())
+			current = 0
+			for v in self.av_array:
+				current += v
+			current = int(current/3)
 			#self.lcd.puts(current,4,self.line_number)  # hardware debug only
 			if current < self.trigger:
 				if self.state == False:
