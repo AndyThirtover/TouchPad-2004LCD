@@ -30,7 +30,7 @@ class TouchUI():
 		self.action = action
 		self.circuit_state = None
 		self.state = False
-		self.av_array = [1000,1000,1000]
+		self.av_array = [1000,1000,1000,1000,1000]  # for a crude running average
 		print("TouchUI {}, Calibrate: {}  Trigger: {} Start: {}".format(self.line_number, self.no_touch, self.trigger, self.start_pixel))
 
 	def trace(self,ind):
@@ -68,7 +68,7 @@ class TouchUI():
 			current = 0
 			for v in self.av_array:
 				current += v
-			current = int(current/3)
+			current = int(current/5)
 			#self.lcd.puts(current,4,self.line_number)  # hardware debug only
 			if current < self.trigger:
 				if self.state == False:
@@ -123,7 +123,7 @@ def show_global_counter():
 
 def dim_leds(np):
 	divsor = 1.2
-	for p in range(np.n):
+	for p in range(np._n):  # .n for standard, ._n for SPI version 
 		cp = np[p]
 		newc = (ceil(cp[0]/divsor),ceil(cp[1]/divsor),ceil(cp[2]/divsor))
 		np[p] = newc

@@ -1,5 +1,6 @@
-from machine import TouchPad, I2C, Pin
-from neopixel import NeoPixel
+from machine import TouchPad, I2C, Pin, SPI
+#from neopixel import NeoPixel
+from neoSPI import NeoPixel
 from lcd2004 import LCD2004
 import uasyncio
 from micropython import const
@@ -16,8 +17,9 @@ rings=[0,12,24,36]
 BLUE = (0,0,32)
 tu = [None,None,None,None]
 
-
-np = NeoPixel(Pin(neo_pin),LEDS)
+hspi = SPI(1, 3200000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+np = NeoPixel(hspi, LEDS)
+#np = NeoPixel(Pin(neo_pin),LEDS)
 
 i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000) 
 lcd = LCD2004(i2c, addr=39)
