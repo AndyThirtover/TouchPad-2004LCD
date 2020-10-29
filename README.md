@@ -19,6 +19,12 @@ and here's writing some text of values to the LCD:
 
 This is the simplified version of the Chinese LCD1602 library.   It has a reduced number of 'if' statements and is generally faster.
 
+## Driving NeoPixels
+
+Turns out the standard import module for MicroPython is a poor implementation giving rise to erroneous colours and flashes.
+
+I used: https://github.com/nickovs/ws2812-SPI as an alternative.  It uses the hardware SPI and drives pin IO13 - Silky Smooth.
+
 ## main.py + classes.py
 
 This is what I wanted to do in the first place.  It has better examples of how to use uasyncio with tasks and run_forever.
