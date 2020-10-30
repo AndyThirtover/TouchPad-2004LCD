@@ -123,7 +123,7 @@ def show_global_counter():
 
 def dim_leds(np):
 	divsor = 1.2
-	for p in range(np._n):  # .n for standard, ._n for SPI version 
+	for p in range(np.n):  # .n for standard, ._n for SPI version -- actually Nicko van Someren fixed this 29.10.2020 
 		cp = np[p]
 		newc = (ceil(cp[0]/divsor),ceil(cp[1]/divsor),ceil(cp[2]/divsor))
 		np[p] = newc
